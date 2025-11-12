@@ -3,7 +3,7 @@
 ![License](https://img.shields.io/github/license/etShaw-zh/download_bnu_etdlib_pdf?color=2E75B6&cacheSeconds=3600) ![Downloads](https://img.shields.io/github/downloads/etShaw-zh/download_bnu_etdlib_pdf/total?logo=github&color=2E75B6&cacheSeconds=3600)
 
 #### 简介
-一个使用纯原生 JavaScript 编写的 Chrome 插件，用于在北京师范大学学位论文阅读器（`etdlib.bnu.edu.cn`）上自动滚动、触发所有懒加载页面，并将整本论文无损导出为 PDF。
+一个使用纯原生 JavaScript 编写的浏览器插件，用于在北京师范大学学位论文阅读器（`etdlib.bnu.edu.cn`）上自动滚动、触发所有懒加载页面，并将整本论文无损导出为 PDF。
 
 ![演示动画](./bnu-etd-extension.gif)
 
@@ -14,7 +14,7 @@
 
 #### 使用步骤
 
-1. 打开 Chrome，访问 `chrome://extensions` 并开启 “开发者模式”。
+1. 打开 Chrome，访问 `chrome://extensions` （MS Edge，访问 `edge://extensions`） 并开启 “开发者模式”。
 2. 点击 “加载已解压的扩展程序”，选择 Release 解压得到的 `bnu-etd-extension/`（或源码中的 `bnu-etd-extension/`）目录。
 3. 打开学位论文阅读页，点击浏览器工具栏上的插件图标，再点击 “开始加载并导出”。弹窗会实时显示加载进度，全部完成后会自动弹出浏览器保存对话框。
 
