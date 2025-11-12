@@ -5,3 +5,4 @@ html/
 
 #Ignore cursor AI rules
 .cursor/rules/codacy.mdc
+.codacy/codacy.yaml
