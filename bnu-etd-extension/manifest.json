@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "BNU ETD PDF Loader",
+  "version": "0.1.0",
+  "description": "自动滚动并抓取北京师范大学学位论文阅读器中的所有页面，并一键导出为 PDF。",
+  "permissions": [
+    "activeTab",
+    "downloads",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://etdlib.bnu.edu.cn/*",
+    "file:///*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "导出 BNU PDF"
+  },
+  "background": {
+    "service_worker": "service-worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://etdlib.bnu.edu.cn/read/pdfindex*.jsp*",
+        "file:///*pdfindex*.jsp*"
+      ],
+      "js": [
+        "content-script.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

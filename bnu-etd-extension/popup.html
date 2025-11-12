@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <title>BNU ETD 导出</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>ETD 导出</h1>
+        <p>将 BNU ETD 阅读器中的所有页面抓取下来，并导出为 PDF， 方便阅读。</p>
+        <p class="tip">导出期间插件会自动滚动阅读器来触发所有懒加载页面，请保持该标签页在前台，直到浏览器弹出保存对话框。</p>
+      </header>
+      <section class="status-block">
+        <p id="status">等待启动…</p>
+        <div class="progress">
+          <div id="progress-bar"></div>
+        </div>
+      </section>
+      <button id="start-btn" type="button">开始加载并导出</button>
+      <p class="tip">
+        如果这个插件帮到了你的科研，欢迎到
+        <a href="https://github.com/etShaw-zh/download_bnu_etdlib_pdf" target="_blank" rel="noreferrer noopener">GitHub 仓库</a>
+        点个 ⭐️ 支持作者。
+      </p>
+      <section class="notice">
+        <h2>版权与免责</h2>
+        <p>导出的内容受北京师范大学及作者版权保护，仅限本人学习与科研参考，严禁对外传播、分享或商业使用。</p>
+        <p>请在阅读完成后尽快删除导出的文件，若违规使用造成法律风险或损失，责任由使用者自行承担。</p>
+      </section>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>
