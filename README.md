@@ -8,7 +8,7 @@
 
 <video src="raw.githubusercontent.com/etShaw-zh/download_bnu_etdlib_pdf/main/bnu-etd-extension.webm" controls width="640" muted>
   您的浏览器不支持内嵌视频，请直接下载 <a href="./bnu-etd-extension.webm">bnu-etd-extension.webm</a> 观看演示。
-</video>
+
 
 #### 下载方式
 
