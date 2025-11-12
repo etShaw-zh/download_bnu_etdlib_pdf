@@ -1,14 +1,12 @@
 # BNU ETD PDF Loader
 
-<img src="https://img.shields.io/github/license/etShaw-zh/download_bnu_etdlib_pdf?color=2E75B6"  alt="License">
+<img src="https://img.shields.io/github/license/etShaw-zh/download_bnu_etdlib_pdf?color=2E75B6"  alt="License" />
 <img src="https://img.shields.io/github/downloads/etShaw-zh/download_bnu_etdlib_pdf/total?logo=github&color=2E75B6" alt='download' />
 
 #### 简介
 一个使用纯原生 JavaScript 编写的 Chrome 插件，用于在北京师范大学学位论文阅读器（`etdlib.bnu.edu.cn`）上自动滚动、触发所有懒加载页面，并将整本论文无损导出为 PDF。
 
-<video src="raw.githubusercontent.com/etShaw-zh/download_bnu_etdlib_pdf/main/bnu-etd-extension.webm" controls width="640" muted>
-  您的浏览器不支持内嵌视频，请直接下载 <a href="./bnu-etd-extension.webm">bnu-etd-extension.webm</a> 观看演示。
-</video>
+![演示动画](./bnu-etd-extension.gif)
 
 #### 下载方式
 
