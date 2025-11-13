@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "BNU ETD PDF Loader",
+  "name": "小鸦PDF",
   "version": "0.1.0",
   "description": "自动滚动并抓取北京师范大学学位论文阅读器中的所有页面，并一键导出为 PDF。",
   "permissions": [
@@ -15,7 +15,7 @@
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "导出 BNU PDF"
+    "default_title": "小鸦PDF"
   },
   "background": {
     "service_worker": "service-worker.js",
