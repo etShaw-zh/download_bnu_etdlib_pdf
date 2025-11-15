@@ -7,3 +7,6 @@ html/
 .cursor/rules/codacy.mdc
 .codacy/codacy.yaml
 .codacy/cli.sh
+
+/venv/
+/doc/_build/
