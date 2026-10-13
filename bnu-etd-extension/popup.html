@@ -9,14 +9,19 @@
     <main>
       <header>
         <div class="heading-row">
-          <h1>小鸦PDF</h1>
+          <div class="brand">
+            <img class="brand-icon" src="icons/icon-128.png" alt="" width="40" height="40">
+            <h1>小鸦PDF</h1>
+          </div>
           <div class="update-tools">
             <span id="current-version" class="current-version"></span>
             <a id="update-btn" class="update-btn" href="https://github.com/etShaw-zh/download_bnu_etdlib_pdf/releases/latest" target="_blank" rel="noopener noreferrer" title="打开最新发布页面，对照当前版本" aria-live="polite">检查更新 ↗</a>
           </div>
         </div>
-        <p>将北京师范大学学位论文阅读器中的所有页面抓取下来，并导出为 PDF， 方便阅读。</p>
-        <p style="text-align: center;">去看论文咯：<a href="https://etdlib.bnu.edu.cn/home" target="_blank" style="text-decoration: none;">✈️ 学位论文服务系统</a></p>
+        <p class="description">北师大学位论文，一键导出为 PDF。</p>
+        <a class="library-link" href="https://etdlib.bnu.edu.cn/home" target="_blank" rel="noopener noreferrer">
+          <span>✈️ 学位论文服务系统</span><span aria-hidden="true">↗</span>
+        </a>
         <section class="usage-guide" aria-labelledby="usage-title">
           <h2 id="usage-title">使用方法</h2>
           <ol>
@@ -27,15 +32,15 @@
         </section>
       </header>
       <section class="status-block">
-        <p id="status">等待启动…</p>
+        <p id="status" role="status">等待启动…</p>
         <div class="progress">
           <div id="progress-bar"></div>
         </div>
+        <button id="start-btn" type="button">开始加载并导出</button>
       </section>
-      <button id="start-btn" type="button">开始加载并导出</button>
-      <p class="tip">
-        如果这个插件帮到了你的科研，欢迎到
-        <a href="https://github.com/etShaw-zh/download_bnu_etdlib_pdf" target="_blank">GitHub 仓库</a>
+      <p class="support">
+        喜欢小鸦PDF？到
+        <a href="https://github.com/etShaw-zh/download_bnu_etdlib_pdf" target="_blank" rel="noopener noreferrer">GitHub</a>
         点个 ⭐️ 支持作者。
       </p>
       <section class="notice">
