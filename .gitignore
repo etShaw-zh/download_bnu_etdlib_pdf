@@ -10,3 +10,5 @@ html/
 
 /venv/
 /doc/_build/
+
+/output/
