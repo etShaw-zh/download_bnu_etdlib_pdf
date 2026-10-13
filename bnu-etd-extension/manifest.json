@@ -31,7 +31,7 @@
   "content_scripts": [
     {
       "matches": [
-        "https://etdlib.bnu.edu.cn/read/pdfindex*.jsp*",
+        "https://etdlib.bnu.edu.cn/*",
         "file:///*pdfindex*.jsp*"
       ],
       "js": [

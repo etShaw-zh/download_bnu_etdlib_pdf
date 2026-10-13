@@ -78,14 +78,19 @@ startBtn.addEventListener('click', async () => {
       { target: 'content-script', type: 'start-export' },
       response => {
         if (chrome.runtime.lastError) {
-          handleFailure(chrome.runtime.lastError.message);
+          const reason = chrome.runtime.lastError.message;
+          handleFailure(/Receiving end does not exist/.test(reason)
+            ? '请在论文详情页或阅读页使用插件；更新插件后请先刷新论文页面。'
+            : reason);
           return;
         }
         if (!response?.ok) {
           handleFailure(response?.error || '内容页未响应');
           return;
         }
-        updateStatus('已开始，请勿手动操作页面…');
+        updateStatus(response.openingReader
+          ? '正在打开全文，进入阅读器后自动导出；若被拦截，请点击页面“查看全文”。'
+          : '已开始，请勿手动操作页面…');
       }
     );
   } catch (error) {

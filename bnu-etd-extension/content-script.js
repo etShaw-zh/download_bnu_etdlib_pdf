@@ -1,7 +1,27 @@
 (function () {
+  if (globalThis.__crowPdfLoaded) return;
+  globalThis.__crowPdfLoaded = true;
   const TARGET = 'content-script';
   let running = false;
+  let openingReader = false;
+  let thesisMetadata = null;
   const imageBytesCache = new Map();
+
+  // Capture metadata also when the user opens full text before using the popup.
+  document.addEventListener('click', event => {
+    if (openingReader || location.pathname !== '/detail') return;
+    const button = event.target.closest?.('button');
+    if (button && /查看全文/.test(button.textContent)) {
+      const metadata = readDetailMetadata();
+      if (metadata.title) {
+        chrome.runtime.sendMessage({ target: 'service-worker', type: 'prepare-reader', metadata, autoStart: false }).catch(() => {});
+      }
+    }
+  }, true);
+
+  if (location.href?.startsWith('https://etdlib.bnu.edu.cn/') && /^\/read\/pdfindex[^/]*\.jsp$/.test(location.pathname)) {
+    initializeReader().catch(error => reportError(error));
+  }
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message?.target !== TARGET) {
@@ -14,19 +34,65 @@
         return;
       }
 
-      running = true;
-      sendResponse({ ok: true });
-      runWorkflow().catch(() => {
-        /* error has been reported via popup */
-      }).finally(() => {
-        running = false;
-      });
+      sendResponse({ ok: true, openingReader: location.pathname === '/detail' });
+      startWorkflow();
     }
   });
+
+  function startWorkflow() {
+    if (running) return;
+    running = true;
+    runWorkflow().catch(() => {}).finally(() => { running = false; });
+  }
+
+  function readDetailMetadata() {
+    const title = document.querySelector('.title-box .title')?.textContent.trim() || '';
+    const row = Array.from(document.querySelectorAll('li')).find(node =>
+      /^作者[:：]?$/.test((node.querySelector('label')?.textContent || '').replace(/\s+/g, ''))
+    );
+    const author = row?.querySelector('.text')?.textContent.trim() || '';
+    return { title, author };
+  }
+
+  async function openDetailReader() {
+    const metadata = readDetailMetadata();
+    if (!metadata.title) throw new Error('未找到论文标题，请等待详情页加载完成后重试。');
+    const button = Array.from(document.querySelectorAll('button')).find(node => /查看全文/.test(node.textContent));
+    if (!button || button.disabled) throw new Error('未找到可用的“查看全文”按钮，请确认已登录并有全文阅读权限。');
+    const response = await chrome.runtime.sendMessage({
+      target: 'service-worker', type: 'prepare-reader', metadata, autoStart: true
+    });
+    if (!response?.ok) throw new Error(response?.error || '无法保存论文信息，请重试。');
+    reportStatus('正在打开全文，进入阅读器后自动导出；若被浏览器拦截，请点击页面“查看全文”。');
+    openingReader = true;
+    try { button.click(); } finally { openingReader = false; }
+  }
+
+  async function initializeReader() {
+    const response = await chrome.runtime.sendMessage({ target: 'service-worker', type: 'reader-ready' });
+    if (!response?.ok) return;
+    thesisMetadata = response.metadata;
+    if (response.autoStart) {
+      const deadline = Date.now() + 20000;
+      while (!document.querySelector('.loadingBg[id^="loadingBg"], .fwr_page')) {
+        if (Date.now() >= deadline) throw new Error('阅读器未加载完成，请在阅读页重新点击开始导出。');
+        await delay(200);
+      }
+      startWorkflow();
+    }
+  }
+
+  function reportError(error) {
+    chrome.runtime.sendMessage({ target: 'popup', type: 'error', error: error?.message || String(error) }).catch(() => {});
+  }
 
   async function runWorkflow() {
     try {
       imageBytesCache.clear();
+      if (location.pathname === '/detail') {
+        await openDetailReader();
+        return;
+      }
       assertSupportedPage();
       reportStatus('开始逐页加载，请勿关闭标签页。');
       const renderedPages = await loadAllPages();
@@ -36,13 +102,9 @@
       const pdfBytes = buildPdfFromImages(pages);
       reportStatus('请求浏览器下载 PDF…');
       await triggerDownload(pdfBytes, buildFileName());
-      chrome.runtime.sendMessage({ target: 'popup', type: 'done' });
+      chrome.runtime.sendMessage({ target: 'popup', type: 'done' }).catch(() => {});
     } catch (error) {
-      chrome.runtime.sendMessage({
-        target: 'popup',
-        type: 'error',
-        error: error?.message || String(error)
-      });
+      reportError(error);
       throw error;
     } finally {
       imageBytesCache.clear();
@@ -332,14 +394,16 @@
     return key === 'width' ? 1190 : 1683;
   }
 
-  function buildFileName() {
-    const title = (document.querySelector('.pdf-title')?.textContent || document.title || 'bnu-export').trim();
-    const safe = title.replace(/[\\/:*?"<>|]+/g, '').replace(/\s+/g, '_');
+  function buildFileName(metadata = thesisMetadata) {
+    const title = (metadata?.title || document.querySelector('.pdf-title')?.textContent || document.title || 'bnu-export').trim();
+    const author = metadata?.author?.trim();
+    const name = author ? `${title}_${author}` : title;
+    const safe = name.replace(/[\\/:*?"<>|\u0000-\u001f]+/g, '').replace(/\s+/g, '_').replace(/[. ]+$/g, '');
     return `${safe || 'bnu-export'}.pdf`;
   }
 
   function reportStatus(text) {
-    chrome.runtime.sendMessage({ target: 'popup', type: 'status', text });
+    chrome.runtime.sendMessage({ target: 'popup', type: 'status', text }).catch(() => {});
   }
 
   function reportProgress(text, current, total) {
@@ -349,7 +413,7 @@
       text,
       current,
       total
-    });
+    }).catch(() => {});
   }
 
   async function triggerDownload(pdfBytes, filename) {
