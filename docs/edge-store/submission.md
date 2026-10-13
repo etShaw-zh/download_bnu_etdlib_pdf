@@ -1,6 +1,6 @@
 # Edge 商店提交资料
 
-版本：0.1.3。商店包与 GitHub 开发包分开构建，不支持本地 file:// 阅读器。
+版本：0.1.3。商店包与 GitHub 开发包分开构建，不支持本地 file:// 阅读器。商店包使用 zh_CN 为默认语言，名称和简短说明由 _locales/zh_CN/messages.json 提供。
 
 生成：`python3 scripts/package_edge_store.py`
 
@@ -46,3 +46,21 @@ The package has no remote executable code and no analytics. Public GitHub releas
 - 开发者注册：https://learn.microsoft.com/en-us/microsoft-edge/extensions/publish/create-dev-account
 
 中文介绍按完整实际功能填写，Logo 使用现有原创图标。截图可选；没有加入合成或过时界面截图。
+
+## 已提交记录
+
+提交日期：2026-10-14。Partner Center 显示“正在审阅”。后台提示预计 7 个工作日收到反馈；此为预计时间，不代表已通过审核。
+
+- 版本：0.1.3
+- 类别：高效工作
+- 可见性：公用；市场：全部可用市场
+- 语言：中文（中国）
+- Microsoft Store ID：0RDCKD6H6303
+- CRX ID：epeblegeninhapoeihmfplkcimmdeanl
+- 产品 ID：801d7fe3-db0e-4705-a629-72abed366f90
+- 管理入口：https://partner.microsoft.com/zh-cn/dashboard/microsoftedge/801d7fe3-db0e-4705-a629-72abed366f90/packages/dashboard
+- 商店公开链接：审核发布后由后台提供，尚未生成。
+
+已上传精简权限的中文商店包、300×300 Logo 和中文说明，填写支持链接、隐私政策与权限理由，并向审核人员提供示例论文页面、测试步骤及访问限制。数据类别勾选个人身份信息、Web 历史记录、网站内容，以披露作者姓名、相关论文地址及页面内容的本地处理；未声明广告、数据销售、分析追踪或云同步。没有上传可选截图。
+
+最终上传包的 19 项自动化测试通过，隐私政策公开链接返回 HTTP 200。真实授权环境下的整本论文下载验证仍待完成，认证说明已说明网站访问条件。

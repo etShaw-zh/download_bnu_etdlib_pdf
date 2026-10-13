@@ -8,6 +8,13 @@ source = ROOT / 'bnu-etd-extension'
 output = ROOT / 'output' / 'edge-store'
 output.mkdir(parents=True, exist_ok=True)
 manifest = json.loads((source / 'manifest.json').read_text())
+locale = {
+    'extensionName': {'message': manifest['name']},
+    'extensionDescription': {'message': manifest['description']}
+}
+manifest['default_locale'] = 'zh_CN'
+manifest['name'] = '__MSG_extensionName__'
+manifest['description'] = '__MSG_extensionDescription__'
 manifest['permissions'] = ['activeTab', 'storage']
 manifest['host_permissions'] = ['https://api.github.com/*', 'https://etdlib.bnu.edu.cn/*']
 for entry in manifest['content_scripts']:
@@ -22,6 +29,7 @@ end = worker.index('\n});', start)
 worker = worker[:start] + worker[end:]
 archive = output / f'crow-pdf-edge-{manifest["version"]}.zip'
 with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as bundle:
+    bundle.writestr('_locales/zh_CN/messages.json', json.dumps(locale, ensure_ascii=False, indent=2).encode())
     for path in sorted(source.rglob('*')):
         if not path.is_file() or path.name.startswith('.') or path.name == 'icon-source.png':
             continue
