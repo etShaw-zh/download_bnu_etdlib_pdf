@@ -1,6 +1,7 @@
 (function () {
   const TARGET = 'content-script';
   let running = false;
+  const imageBytesCache = new Map();
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message?.target !== TARGET) {
@@ -25,6 +26,7 @@
 
   async function runWorkflow() {
     try {
+      imageBytesCache.clear();
       assertSupportedPage();
       reportStatus('开始逐页加载，请勿关闭标签页。');
       const renderedPages = await loadAllPages();
@@ -42,6 +44,8 @@
         error: error?.message || String(error)
       });
       throw error;
+    } finally {
+      imageBytesCache.clear();
     }
   }
 
@@ -176,7 +180,9 @@
 
   function ensureElementRenderable(element) {
     if (element.tagName === 'IMG') {
-      return ensureImageLoaded(element);
+      return ensureImageLoaded(element).then(() => {
+        warmImageBytes(element);
+      });
     }
     if (element.tagName === 'CANVAS') {
       return Promise.resolve();
@@ -244,8 +250,40 @@
   }
 
   async function fetchImageBytes(img) {
+    const url = resolveImageUrl(img);
+    return getOrCreateImageBytesTask(url);
+  }
+
+  function warmImageBytes(img) {
+    const url = resolveImageUrl(img);
+    getOrCreateImageBytesTask(url).catch(() => {
+      // Ignore preload errors here; fetch phase will retry.
+    });
+  }
+
+  function resolveImageUrl(img) {
     const src = img.currentSrc || img.src;
-    const url = new URL(src, document.baseURI).href;
+    if (!src) {
+      throw new Error('页面图像地址为空，无法导出。');
+    }
+    return new URL(src, document.baseURI).href;
+  }
+
+  function getOrCreateImageBytesTask(url) {
+    const cached = imageBytesCache.get(url);
+    if (cached) {
+      return cached;
+    }
+
+    const task = fetchImageBytesFromUrl(url).catch(error => {
+      imageBytesCache.delete(url);
+      throw error;
+    });
+    imageBytesCache.set(url, task);
+    return task;
+  }
+
+  async function fetchImageBytesFromUrl(url) {
     const response = await fetch(url, { credentials: 'include' });
     if (!response.ok) {
       throw new Error(`无法下载图像：${response.status}`);
