@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "小鸦PDF",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "自动滚动并抓取北京师范大学学位论文阅读器中的所有页面，并一键导出为 PDF。",
   "permissions": [
     "activeTab",
