@@ -5,6 +5,7 @@
   let running = false;
   let openingReader = false;
   let thesisMetadata = null;
+  let exportOverlay = null;
   const imageBytesCache = new Map();
 
   // Capture metadata also when the user opens full text before using the popup.
@@ -94,11 +95,13 @@
         return;
       }
       assertSupportedPage();
+      showExportOverlay();
       reportStatus('开始逐页加载，请勿关闭标签页。');
       const renderedPages = await loadAllPages();
       reportStatus('抓取图像数据中…');
       const pages = await fetchImages(renderedPages);
       reportStatus('正在生成 PDF…');
+      await delay(0);
       const pdfBytes = buildPdfFromImages(pages);
       reportStatus('请求浏览器下载 PDF…');
       await triggerDownload(pdfBytes, buildFileName());
@@ -107,6 +110,7 @@
       reportError(error);
       throw error;
     } finally {
+      hideExportOverlay();
       imageBytesCache.clear();
     }
   }
@@ -126,6 +130,7 @@
     }
 
     const rendered = [];
+    reportProgress('加载页面', 0, containers.length);
     for (let i = 0; i < containers.length; i += 1) {
       const container = containers[i];
       scrollPageIntoView(container.node);
@@ -285,6 +290,7 @@
 
   async function fetchImages(renderedPages) {
     const pages = [];
+    reportProgress('下载图像', 0, renderedPages.length);
     for (let i = 0; i < renderedPages.length; i += 1) {
       const element = renderedPages[i]?.element;
       if (!element) {
@@ -297,6 +303,7 @@
         height: getElementDimension(element, 'height')
       });
       reportProgress('下载图像', i + 1, renderedPages.length);
+      if (i % 10 === 0) await delay(0);
     }
     return pages;
   }
@@ -403,10 +410,21 @@
   }
 
   function reportStatus(text) {
+    if (exportOverlay) {
+      exportOverlay.phase.textContent = text;
+      exportOverlay.count.textContent = '';
+      exportOverlay.progress.removeAttribute('value');
+    }
     chrome.runtime.sendMessage({ target: 'popup', type: 'status', text }).catch(() => {});
   }
 
   function reportProgress(text, current, total) {
+    if (exportOverlay) {
+      const percent = total > 0 ? Math.max(0, Math.min(100, Math.round(current / total * 100))) : 0;
+      exportOverlay.phase.textContent = text;
+      exportOverlay.count.textContent = `${current} / ${total} · ${percent}%`;
+      exportOverlay.progress.value = percent;
+    }
     chrome.runtime.sendMessage({
       target: 'popup',
       type: 'progress',
@@ -414,6 +432,89 @@
       current,
       total
     }).catch(() => {});
+  }
+
+  function showExportOverlay() {
+    if (exportOverlay) return;
+    const host = document.createElement('div');
+    host.id = 'crow-pdf-export-overlay';
+    for (const [name, value] of Object.entries({
+      position: 'fixed', inset: '0', 'z-index': '2147483647', display: 'block',
+      'pointer-events': 'auto', 'touch-action': 'none'
+    })) host.style.setProperty(name, value, 'important');
+    const root = host.attachShadow({ mode: 'open' });
+    const style = document.createElement('style');
+    style.textContent = `
+      :host { color-scheme: light; }
+      * { box-sizing: border-box; }
+      .backdrop { position: absolute; inset: 0; display: grid; place-items: center;
+        padding: 24px; background: rgba(15, 23, 42, .62); overscroll-behavior: none;
+        font: 14px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif; }
+      .card { width: min(100%, 380px); padding: 28px; border-radius: 16px; background: #fff;
+        color: #1f2937; box-shadow: 0 20px 64px rgba(0, 0, 0, .25); }
+      h2 { margin: 0 0 16px; font-size: 20px; line-height: 1.4; }
+      .phase { margin: 0 0 8px; font-weight: 600; }
+      .count { min-height: 23px; margin: 0 0 12px; color: #2563eb; font-variant-numeric: tabular-nums; }
+      progress { display: block; width: 100%; height: 10px; border: 0; border-radius: 99px;
+        overflow: hidden; accent-color: #2563eb; }
+      progress::-webkit-progress-bar { background: #e2e8f0; border-radius: 99px; }
+      progress::-webkit-progress-value { background: #2563eb; border-radius: 99px; }
+      .note { margin: 16px 0 0; color: #64748b; font-size: 12px; }
+    `;
+    const backdrop = document.createElement('div');
+    backdrop.className = 'backdrop';
+    const card = document.createElement('section');
+    card.className = 'card';
+    card.setAttribute('role', 'dialog');
+    card.setAttribute('aria-modal', 'true');
+    card.setAttribute('aria-label', '小鸦PDF 导出进度');
+    card.tabIndex = -1;
+    const heading = document.createElement('h2');
+    heading.textContent = '小鸦PDF 正在导出';
+    const phase = document.createElement('p');
+    phase.className = 'phase';
+    phase.setAttribute('role', 'status');
+    const count = document.createElement('p');
+    count.className = 'count';
+    const progress = document.createElement('progress');
+    progress.max = 100;
+    progress.value = 0;
+    progress.setAttribute('aria-label', '当前阶段进度');
+    const note = document.createElement('p');
+    note.className = 'note';
+    note.textContent = '请保持此标签页在前台，不要手动滚动或切换页面。';
+    card.append(heading, phase, count, progress, note);
+    backdrop.append(card);
+    root.append(style, backdrop);
+    exportOverlay = { host, phase, count, progress, previousFocus: document.activeElement };
+    document.body.append(host);
+    document.addEventListener('wheel', blockManualScroll, { capture: true, passive: false });
+    document.addEventListener('touchmove', blockManualScroll, { capture: true, passive: false });
+    document.addEventListener('keydown', blockManualKeys, true);
+    card.focus({ preventScroll: true });
+  }
+
+  function blockManualScroll(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }
+
+  function blockManualKeys(event) {
+    if (!event.ctrlKey && !event.metaKey && !event.altKey &&
+        ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'PageUp', 'PageDown', 'Home', 'End', ' ', 'Tab'].includes(event.key)) {
+      blockManualScroll(event);
+    }
+  }
+
+  function hideExportOverlay() {
+    if (!exportOverlay) return;
+    const { host, previousFocus } = exportOverlay;
+    exportOverlay = null;
+    host.remove();
+    document.removeEventListener('wheel', blockManualScroll, true);
+    document.removeEventListener('touchmove', blockManualScroll, true);
+    document.removeEventListener('keydown', blockManualKeys, true);
+    if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
   }
 
   async function triggerDownload(pdfBytes, filename) {

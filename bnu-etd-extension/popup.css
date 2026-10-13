@@ -72,6 +72,53 @@ header p {
   color: #475569;
 }
 
+.usage-guide {
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+  background: #eff6ff;
+}
+
+.usage-guide h2 {
+  margin: 0 0 8px;
+  color: #1e40af;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.usage-guide ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: usage-step;
+}
+
+.usage-guide li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: #475569;
+  font-size: 12px;
+  line-height: 18px;
+  counter-increment: usage-step;
+}
+
+.usage-guide li + li {
+  margin-top: 6px;
+}
+
+.usage-guide li::before {
+  content: counter(usage-step);
+  flex: 0 0 18px;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #1d4ed8;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 600;
+}
+
 .status-block {
   background: #fff;
   border-radius: 8px;

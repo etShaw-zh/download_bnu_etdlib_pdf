@@ -2,6 +2,7 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const vm = require('node:vm');
 const fs = require('node:fs');
+const { element } = require('./helpers/dom.cjs');
 const flush = () => new Promise(resolve => setImmediate(resolve));
 const title = '社交媒体时代中国年轻人情感问题及应对措施探究';
 
@@ -122,11 +123,11 @@ test('reader automatically exports with thesis filename even after popup closes'
   const canvas = { tagName: 'CANVAS', width: 100, height: 200, toDataURL: () => 'data:image/jpeg;base64,/9j/2Q==' };
   const container = { id: 'loadingBg0', querySelector: () => canvas, scrollIntoView() {} };
   const doc = {
-    title: '首页', addEventListener() {},
+    title: '首页', addEventListener() {}, removeEventListener() {},
     querySelector: selector => selector.includes('.loadingBg') ? container : null,
     querySelectorAll: () => [container], getElementById: () => null,
-    createElement: () => ({ style: {}, click() { downloaded = this.download; }, remove() {} }),
-    body: { appendChild() {} }
+    createElement: tag => { const n = element(tag); n.click = function () { downloaded = this.download; }; return n; },
+    body: element('body')
   };
   vm.runInNewContext(fs.readFileSync('bnu-etd-extension/content-script.js', 'utf8'), {
     document: doc, window: {},
@@ -138,7 +139,7 @@ test('reader automatically exports with thesis filename even after popup closes'
     URL: { createObjectURL(blob) { pdf = blob; return 'blob:pdf'; }, revokeObjectURL() {} },
     setTimeout(fn) { setImmediate(fn); }, clearTimeout() {}, TextEncoder, Uint8Array, Blob, atob
   });
-  for (let i = 0; i < 5; i++) await flush();
+  for (let i = 0; i < 12; i++) await flush();
   assert.equal(downloaded, `${title}_韩里夫.pdf`);
   assert.match(Buffer.from(await pdf.arrayBuffer()).toString(), /^%PDF-1.4/);
 });
