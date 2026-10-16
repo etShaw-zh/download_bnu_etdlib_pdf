@@ -1,15 +1,12 @@
-# 🐦‍⬛小鸦PDF
+# 🐦‍⬛小鸦PDF：北师大学位论文，一键导出为 PDF
 
 ![License](https://img.shields.io/github/license/etShaw-zh/download_bnu_etdlib_pdf?color=2E75B6) ![Downloads](https://img.shields.io/github/downloads/etShaw-zh/download_bnu_etdlib_pdf/total?logo=github&color=2E75B6)
-
-#### 简介
-一个使用纯原生 JavaScript 编写的浏览器插件，用于在北京师范大学学位论文阅读器（`etdlib.bnu.edu.cn`）上自动滚动、触发所有懒加载页面，并将整本论文无损导出为 PDF。
 
 ![演示动画](./bnu-etd-extension.gif)
 
 #### 下载方式
 
-- **Release 包（推荐）**：前往 [GitHub Releases](https://github.com/etShaw-zh/download_bnu_etdlib_pdf/releases) 下载最新的 `bnu-etd-extension.zip`，解压即可得到可直接加载的 `bnu-etd-extension/` 目录。
+- **Release 包（推荐）**：前往 [GitHub Releases](https://github.com/etShaw-zh/download_bnu_etdlib_pdf/releases) 下载最新的 `bnu-etd-extension.zip`，解压得到 `bnu-etd-extension/` 目录。
 - **源码方式**：克隆本仓库并使用 `bnu-etd-extension/` 目录进行开发或调试。
 
 #### 使用步骤
