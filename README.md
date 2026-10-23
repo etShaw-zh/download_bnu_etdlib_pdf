@@ -2,6 +2,8 @@
 
 ![License](https://img.shields.io/github/license/etShaw-zh/download_bnu_etdlib_pdf?color=2E75B6) ![Downloads](https://img.shields.io/github/downloads/etShaw-zh/download_bnu_etdlib_pdf/total?logo=github&color=2E75B6)
 
+![ScreenShot](./repository-open-graph.jpg)
+
 ![演示动画](./bnu-etd-extension.gif)
 
 #### 下载方式
@@ -13,8 +15,12 @@
 
 1. 打开 Chrome，访问 `chrome://extensions` （MS Edge，访问 `edge://extensions`） 并开启 “开发者模式”。
 2. 点击 “加载已解压的扩展程序”，选择 Release 解压得到的 `bnu-etd-extension/`（或源码中的 `bnu-etd-extension/`）目录。
+
+![StepByStep](./doc/_static/step-by-step.png)
+
 3. 打开论文详情页，点击浏览器工具栏上的插件图标，再点击 “开始加载并导出”。插件会读取论文标题和作者，点击“查看全文”进入阅读器后自动导出，默认文件名为 `标题_作者.pdf`。若浏览器拦截了新标签页，请手动点击页面的“查看全文”；仍需满足网站的登录和全文阅读权限。
 4. 也可以先在详情页点击“查看全文”，再在阅读页启动插件；同样会沿用详情页的标题和作者。直接打开阅读器时，若没有详情页信息，则使用阅读器标题作为文件名。弹窗会显示加载进度，全部完成后会触发浏览器下载。
+
 
 #### 版权提示与免责声明
 
